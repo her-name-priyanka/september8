@@ -114,7 +114,7 @@
             box-shadow: none
         }
 
-        /* popup message */
+      
         .bubble {
             position: absolute;
             padding: 10px 12px;
@@ -130,7 +130,6 @@
             pointer-events: auto
         }
 
-        /* footer */
         footer {
             display: flex;
             justify-content: space-between;
@@ -139,13 +138,11 @@
             color: rgba(255, 255, 255, 0.6)
         }
 
-        /* small helpers */
         .muted {
             opacity: .8;
             font-size: 13px
         }
 
-        /* Mobile adjustments */
         @media (max-width: 820px) {
             body {
                 padding: 16px;
@@ -217,7 +214,7 @@
     </audio>
 
     <script>
-        // setup canvases
+
         const scene = document.getElementById('scene');
         const bg = document.getElementById('bg');
         const fg = document.getElementById('fg');
@@ -245,7 +242,6 @@
         const bgCtx = bg.getContext('2d');
         const fgCtx = fg.getContext('2d');
 
-        // stars
         const stars = [];
         const STAR_COUNT = Math.floor(Math.min(220, scene.clientWidth * scene.clientHeight / 3800));
 
@@ -265,7 +261,6 @@
         }
         regenStars();
 
-        // messages to show on star click
         const messages = [
             'Keep shining — small steps, big dreams.',
             'A tiny miracle is heading your way.',
@@ -274,7 +269,6 @@
             'Stars align for your next idea.'
         ];
 
-        // shooting stars
         const shooting = [];
 
         function spawnShooting() {
@@ -288,15 +282,14 @@
             });
         }
 
-        // draw loop
         let last = performance.now();
 
         function loop(now) {
             const dt = now - last;
             last = now;
-            // bg draw (static stars + faint nebula)
+
             bgCtx.clearRect(0, 0, bg.width, bg.height);
-            // nebula gradient
+
             const g = bgCtx.createLinearGradient(0, 0, scene.clientWidth, scene.clientHeight);
             g.addColorStop(0, 'rgba(120,88,255,0.04)');
             g.addColorStop(0.5, 'rgba(180,60,200,0.03)');
@@ -304,7 +297,6 @@
             bgCtx.fillStyle = g;
             bgCtx.fillRect(0, 0, scene.clientWidth, scene.clientHeight);
 
-            // stars twinkle
             for (let s of stars) {
                 const t = Math.sin((now + s.twinkle) / 150) * 0.5 + 0.5;
                 bgCtx.beginPath();
@@ -315,7 +307,6 @@
             }
             bgCtx.globalAlpha = 1;
 
-            // shooting stars
             fgCtx.clearRect(0, 0, fg.width, fg.height);
             for (let i = shooting.length - 1; i >= 0; i--) {
                 const obj = shooting[i];
@@ -341,12 +332,10 @@
         }
         requestAnimationFrame(loop);
 
-        // periodic shooting stars
         setInterval(() => {
             if (Math.random() < 0.65) spawnShooting();
         }, 1000);
 
-        // handle clicks for star messages
         function findNearestStar(x, y) {
             let best = null;
             let bestD = 60;
@@ -407,7 +396,6 @@
             }
         });
 
-        // music toggle
         let musicPlaying = false;
         musicBtn.addEventListener('click', () => {
             if (!musicPlaying) {
@@ -416,7 +404,7 @@
                     musicBtn.textContent = 'Pause Music';
                 }).catch(e => {
                     console.error("Music play failed:", e);
-                    // Handle cases where user interaction is needed
+
                     alert("Please click anywhere to play music.");
                 });
             } else {
@@ -426,7 +414,6 @@
             }
         });
 
-        // constellation mode: briefly connect random stars
         let constMode = false;
 
         function showConstellations() {
@@ -437,7 +424,7 @@
                 const b = stars[Math.floor(Math.random() * stars.length)];
                 lines.push([a, b]);
             }
-            // draw overlay
+
             const overlay = document.createElement('canvas');
             overlay.width = fg.width;
             overlay.height = fg.height;
@@ -474,12 +461,10 @@
             showConstellations();
         });
 
-        // initial small shimmer on load
         setTimeout(() => {
             if (Math.random() < 0.8) spawnShooting();
         }, 600);
 
-        // accessibility: keyboard star message (space near center)
         window.addEventListener('keydown', (e) => {
             if (e.key === ' ') {
                 const cx = scene.clientWidth / 2;
@@ -493,4 +478,5 @@
         });
     </script>
 </body>
+
 </html>
