@@ -31,7 +31,6 @@
             z-index: 1;
         }
 
-        /* This is the nebulae/galaxy layer */
         body::before {
             content: '';
             position: absolute;
@@ -40,19 +39,18 @@
             width: 100%;
             height: 100%;
             background-image:
-                /* Nebulae effects for a more realistic galaxy feel */
+  
                 radial-gradient(ellipse at 70% 20%, rgba(200, 150, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(ellipse at 30% 80%, rgba(150, 200, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(ellipse at 50% 50%, rgba(255, 180, 200, 0.05) 0%, transparent 50%);
             z-index: -1;
         }
 
-        /* Canvas for the dynamic star field */
         #star-canvas {
             position: absolute;
             top: 0;
             left: 0;
-            z-index: -2; /* Placed behind the nebulae layer */
+            z-index: -2; 
         }
 
         .container {
@@ -207,7 +205,6 @@
             const unmuteOverlay = document.getElementById("unmute-overlay");
             const nextButton = document.getElementById("next-button");
 
-            // Handle unmuting and playing the audio on user interaction
             unmuteOverlay.addEventListener("click", () => {
                 video.muted = false;
                 audio.play().catch(error => {
@@ -216,16 +213,14 @@
                 unmuteOverlay.classList.add("hidden");
             });
 
-            // Function to create and animate the star pop effect
             function createStars(button) {
-                const numStars = 70; // Increased number of stars
+                const numStars = 70; 
                 for (let i = 0; i < numStars; i++) {
                     const star = document.createElement('div');
                     star.className = 'star-particle';
-                    
-                    // Position the star randomly around the button's center
+
                     const angle = Math.random() * 2 * Math.PI;
-                    const distance = Math.random() * 50 + 20; // 20px to 70px outward
+                    const distance = Math.random() * 50 + 20; 
                     const dx = distance * Math.cos(angle);
                     const dy = distance * Math.sin(angle);
 
@@ -233,32 +228,27 @@
                     star.style.setProperty('--dy', `${dy}px`);
                     
                     button.appendChild(star);
-                    
-                    // Remove the star after the animation is complete
+    
                     star.addEventListener('animationend', () => {
                         star.remove();
                     });
                 }
             }
 
-            // Handle button click to trigger stars and then redirect
             nextButton.addEventListener("click", () => {
-                createStars(nextButton); // Create stars on the button click
+                createStars(nextButton); 
 
-                // Delay the redirect to allow the animation to play
                 setTimeout(() => {
                     window.location.href = "./galaxy magic.html"; 
-                }, 800); // Redirect after 800ms
+                }, 800);
             });
 
-            // Prevent video from playing without sound if user doesn't interact
             if (video.autoplay && video.muted) {
                 video.play().catch(error => {
                     console.error("Video autoplay failed:", error);
                 });
             }
 
-            // New canvas-based star background
             const canvas = document.getElementById('star-canvas');
             const ctx = canvas.getContext('2d');
             let stars = [];
@@ -269,10 +259,10 @@
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2;
                 this.opacity = Math.random();
-                this.speed = Math.random() * 0.2 + 0.05; // Slower speed for a grander feel
-                // *** DECREASED TWINKLE SPEED HERE ***
-                this.twinkleSpeed = Math.random() * 0.01 + 0.005; // Slower twinkling speed
-                this.twinkleDirection = Math.random() > 0.5 ? 1 : -1; // Direction of twinkle (fade in/out)
+                this.speed = Math.random() * 0.2 + 0.05;
+
+                this.twinkleSpeed = Math.random() * 0.01 + 0.005; 
+                this.twinkleDirection = Math.random() > 0.5 ? 1 : -1; 
             }
 
             function init() {
@@ -291,25 +281,21 @@
                 for (let i = 0; i < stars.length; i++) {
                     const star = stars[i];
 
-                    // Twinkling effect: change opacity over time
                     star.opacity += star.twinkleSpeed * star.twinkleDirection;
                     if (star.opacity > 1 || star.opacity < 0) {
-                        star.twinkleDirection *= -1; // Reverse twinkle direction
-                        star.opacity = Math.max(0, Math.min(1, star.opacity)); // Clamp opacity between 0 and 1
+                        star.twinkleDirection *= -1; 
+                        star.opacity = Math.max(0, Math.min(1, star.opacity)); 
                     }
 
 
-                    // Draw the star
                     ctx.beginPath();
                     ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                     ctx.closePath();
                     ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
                     ctx.fill();
 
-                    // Animate the star's movement
                     star.x += star.speed;
 
-                    // Reset the star when it moves off screen
                     if (star.x > canvas.width) {
                         star.x = 0;
                         star.y = Math.random() * canvas.height;
@@ -324,4 +310,5 @@
         });
     </script>
 </body>
+
 </html>
