@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Day 10 — Galaxy Wishes</title>
+    <style>
+        :root {
+            --bg1: #04021a;
+            --bg2: #0b1b3a;
+            --accent: #7be0ff;
+            --accent2: #c87bff;
+            --text: #e8f6ff;
+            --card: rgba(255, 255, 255, 0.04);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter, system-ui, Segoe UI, Roboto, -apple-system;
+        }
+
+        body {
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(120, 88, 255, 0.06), transparent 30%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
+            color: var(--text);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+
+        .wrap {
+            width: min(1100px, 96vw);
+            max-width: 1100px;
+            position: relative
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 12px
+        }
+
+        .title {
+            font-size: clamp(28px, 6vw, 56px);
+            margin: 0;
+            color: var(--accent);
+            text-shadow: 0 0 18px rgba(123, 224, 255, 0.12), 0 0 36px rgba(200, 123, 255, 0.06);
+            font-weight: 700
+        }
+
+        .subtitle {
+            opacity: .8;
+            font-size: 14px
+        }
+
+        /* scene */
+        .scene {
+            position: relative;
+            height: 66vh;
+            border-radius: 16px;
+            overflow: hidden;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 20px 60px rgba(2, 6, 23, 0.6)
+        }
+
+        @media(max-width:820px) {
+            .scene {
+                height: 66vh
+            }
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            display: block
+        }
+
+        /* controls */
+        .controls {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            display: flex;
+            gap: 10px;
+            z-index: 30
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border: none;
+            color: #021029;
+            padding: 8px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4)
+        }
+
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            box-shadow: none
+        }
+
+        /* popup message */
+        .bubble {
+            position: absolute;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+            backdrop-filter: blur(6px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 14px;
+            color: var(--text);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            transform: translate(-50%, -120%);
+            pointer-events: auto
+        }
+
+        /* footer */
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            color: rgba(255, 255, 255, 0.6)
+        }
+
+        /* small helpers */
+        .muted {
+            opacity: .8;
+            font-size: 13px
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 820px) {
+            body {
+                padding: 16px;
+            }
+
+            .wrap {
+                width: 100vw;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .controls {
+                position: static;
+                right: auto;
+                top: auto;
+                margin-top: 8px;
+            }
+
+            .title {
+                font-size: clamp(24px, 8vw, 48px);
+            }
+
+            .subtitle {
+                font-size: 12px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 8px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div>
+                <h1 class="title">Happy Birthday Priyankaaa💫</h1>
+                <div class="subtitle muted">Click stars for a tiny message • Enjoy the calm cosmic with music</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+                <div class="muted">Music</div>
+                <div class="controls">
+                    <button class="btn" id="musicBtn">Play Music</button>
+                    <button class="btn ghost" id="constBtn">Show Constellations</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="scene" id="scene">
+            <canvas id="bg"></canvas>
+            <canvas id="fg"></canvas>
+            </section>
+
+        <footer>
+            <div class="muted">Day 10 • Shooting Stars & Wishes</div>
+            <div class="muted">Tip: tap/click a star</div>
+        </footer>
+    </div>
+
+    <audio id="music" preload="auto" loop>
+        <source src="./ye raaten.m4a" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // setup canvases
+        const scene = document.getElementById('scene');
+        const bg = document.getElementById('bg');
+        const fg = document.getElementById('fg');
+        const music = document.getElementById('music');
+        const musicBtn = document.getElementById('musicBtn');
+        const constBtn = document.getElementById('constBtn');
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+        function resize() {
+            [bg, fg].forEach(c => {
+                c.width = scene.clientWidth * dpr;
+                c.height = scene.clientHeight * dpr;
+                c.style.width = scene.clientWidth + 'px';
+                c.style.height = scene.clientHeight + 'px';
+                const ctx = c.getContext('2d');
+                ctx.scale(dpr, dpr);
+            });
+        }
+        window.addEventListener('resize', () => {
+            resize();
+            regenStars();
+        });
+        resize();
+
+        const bgCtx = bg.getContext('2d');
+        const fgCtx = fg.getContext('2d');
+
+        // stars
+        const stars = [];
+        const STAR_COUNT = Math.floor(Math.min(220, scene.clientWidth * scene.clientHeight / 3800));
+
+        function regenStars() {
+            stars.length = 0;
+            const count = Math.floor(Math.min(220, scene.clientWidth * scene.clientHeight / 3800));
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * scene.clientWidth,
+                    y: Math.random() * scene.clientHeight,
+                    r: Math.random() * 1.8 + 0.3,
+                    alpha: Math.random() * 0.9 + 0.1,
+                    twinkle: Math.random() * 2000 + 800,
+                    twinkleFactor: Math.random() * 0.4 + 0.6 // New twinkle factor
+                });
+            }
+        }
+        regenStars();
+
+        // messages to show on star click
+        const messages = [
+            'Keep shining — small steps, big dreams.',
+            'A tiny miracle is heading your way.',
+            'You are braver than you feel today.',
+            'Make today unexpectedly kind.',
+            'Stars align for your next idea.'
+        ];
+
+        // shooting stars
+        const shooting = [];
+
+        function spawnShooting() {
+            shooting.push({
+                x: Math.random() * scene.clientWidth,
+                y: Math.random() * scene.clientHeight * 0.2,
+                vx: -Math.random() * 6 - 6,
+                vy: Math.random() * 3 + 2,
+                life: 0,
+                max: 80 + Math.random() * 120
+            });
+        }
+
+        // draw loop
+        let last = performance.now();
+
+        function loop(now) {
+            const dt = now - last;
+            last = now;
+            // bg draw (static stars + faint nebula)
+            bgCtx.clearRect(0, 0, bg.width, bg.height);
+            // nebula gradient
+            const g = bgCtx.createLinearGradient(0, 0, scene.clientWidth, scene.clientHeight);
+            g.addColorStop(0, 'rgba(120,88,255,0.04)');
+            g.addColorStop(0.5, 'rgba(180,60,200,0.03)');
+            g.addColorStop(1, 'transparent');
+            bgCtx.fillStyle = g;
+            bgCtx.fillRect(0, 0, scene.clientWidth, scene.clientHeight);
+
+            // stars twinkle
+            for (let s of stars) {
+                const t = Math.sin((now + s.twinkle) / 150) * 0.5 + 0.5;
+                bgCtx.beginPath();
+                bgCtx.globalAlpha = s.alpha * (s.twinkleFactor + (1 - s.twinkleFactor) * t);
+                bgCtx.fillStyle = 'white';
+                bgCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+            bgCtx.globalAlpha = 1;
+
+            // shooting stars
+            fgCtx.clearRect(0, 0, fg.width, fg.height);
+            for (let i = shooting.length - 1; i >= 0; i--) {
+                const obj = shooting[i];
+                obj.x += obj.vx * dt / 16;
+                obj.y += obj.vy * dt / 16;
+                obj.life += dt / 16;
+                const p = Math.max(0, 1 - obj.life / obj.max);
+                const len = 80 * p;
+                fgCtx.beginPath();
+                const grd = fgCtx.createLinearGradient(obj.x, obj.y, obj.x - len * 2, obj.y + len * 0.6);
+                grd.addColorStop(0, 'rgba(255,255,255,1)');
+                grd.addColorStop(1, 'rgba(123,224,255,0)');
+                fgCtx.strokeStyle = grd;
+                fgCtx.lineWidth = 2.2 * p;
+                fgCtx.lineCap = 'round';
+                fgCtx.moveTo(obj.x, obj.y);
+                fgCtx.lineTo(obj.x - len, obj.y + len * 0.6);
+                fgCtx.stroke();
+                if (obj.life > obj.max) shooting.splice(i, 1);
+            }
+
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+
+        // periodic shooting stars
+        setInterval(() => {
+            if (Math.random() < 0.65) spawnShooting();
+        }, 1000);
+
+        // handle clicks for star messages
+        function findNearestStar(x, y) {
+            let best = null;
+            let bestD = 60;
+            for (let s of stars) {
+                const dx = s.x - x;
+                const dy = s.y - y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < bestD) {
+                    bestD = d;
+                    best = s;
+                }
+            }
+            return best;
+        }
+
+        function showBubble(x, y, text) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            b.textContent = text;
+            b.style.left = x + 'px';
+            b.style.top = y + 'px';
+            scene.appendChild(b);
+            setTimeout(() => {
+                b.animate([{
+                    opacity: 1,
+                    transform: 'translate(-50%,-120%) scale(1)'
+                }, {
+                    opacity: 0,
+                    transform: 'translate(-50%,-160%) scale(.95)'
+                }], {
+                    duration: 2500,
+                    easing: 'ease'
+                });
+                setTimeout(() => b.remove(), 2500);
+            }, 50);
+        }
+
+        fg.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = fg.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left;
+            const y = e.touches[0].clientY - rect.top;
+            const star = findNearestStar(x, y);
+            if (star) {
+                const msg = messages[Math.floor(Math.random() * messages.length)];
+                showBubble(star.x, star.y, msg);
+            }
+        });
+
+        fg.addEventListener('click', (e) => {
+            const rect = fg.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const star = findNearestStar(x, y);
+            if (star) {
+                const msg = messages[Math.floor(Math.random() * messages.length)];
+                showBubble(star.x, star.y, msg);
+            }
+        });
+
+        // music toggle
+        let musicPlaying = false;
+        musicBtn.addEventListener('click', () => {
+            if (!musicPlaying) {
+                music.play().then(() => {
+                    musicPlaying = true;
+                    musicBtn.textContent = 'Pause Music';
+                }).catch(e => {
+                    console.error("Music play failed:", e);
+                    // Handle cases where user interaction is needed
+                    alert("Please click anywhere to play music.");
+                });
+            } else {
+                music.pause();
+                musicPlaying = false;
+                musicBtn.textContent = 'Play Music';
+            }
+        });
+
+        // constellation mode: briefly connect random stars
+        let constMode = false;
+
+        function showConstellations() {
+            const constCount = 5;
+            const lines = [];
+            for (let i = 0; i < constCount; i++) {
+                const a = stars[Math.floor(Math.random() * stars.length)];
+                const b = stars[Math.floor(Math.random() * stars.length)];
+                lines.push([a, b]);
+            }
+            // draw overlay
+            const overlay = document.createElement('canvas');
+            overlay.width = fg.width;
+            overlay.height = fg.height;
+            overlay.style.position = 'absolute';
+            overlay.style.left = '0';
+            overlay.style.top = '0';
+            overlay.style.zIndex = 25;
+            overlay.getContext('2d').scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            scene.appendChild(overlay);
+            const ctx = overlay.getContext('2d');
+            ctx.strokeStyle = 'rgba(123,224,255,0.9)';
+            ctx.lineWidth = 1.6;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = 'rgba(200,120,255,0.12)';
+            let t = 0;
+            const anim = setInterval(() => {
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                ctx.globalAlpha = 1 - t / 80;
+                for (const [a, b] of lines) {
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                }
+                t += 2;
+                if (t > 80) {
+                    clearInterval(anim);
+                    overlay.remove();
+                }
+            }, 30);
+        }
+
+        constBtn.addEventListener('click', () => {
+            showConstellations();
+        });
+
+        // initial small shimmer on load
+        setTimeout(() => {
+            if (Math.random() < 0.8) spawnShooting();
+        }, 600);
+
+        // accessibility: keyboard star message (space near center)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                const cx = scene.clientWidth / 2;
+                const cy = scene.clientHeight / 2;
+                const star = findNearestStar(cx, cy);
+                if (star) {
+                    const msg = messages[Math.floor(Math.random() * messages.length)];
+                    showBubble(star.x, star.y, msg);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

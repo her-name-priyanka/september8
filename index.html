@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Priyanka!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        :root {
+            --star-color: #ffffff;
+            --primary-text: #e0c8ff;
+            --card-bg: rgba(255, 255, 255, 0.15);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --button-glow: #e0c8ff;
+            --button-purple: #7b4397;
+            --button-red: #dc2430;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #0d041f;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* This is the nebulae/galaxy layer */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                /* Nebulae effects for a more realistic galaxy feel */
+                radial-gradient(ellipse at 70% 20%, rgba(200, 150, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 30% 80%, rgba(150, 200, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 180, 200, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        /* Canvas for the dynamic star field */
+        #star-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -2; /* Placed behind the nebulae layer */
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 90%;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: 700;
+            color: var(--primary-text);
+            text-shadow: 0 0 15px var(--primary-text);
+            margin-bottom: 2rem;
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from { text-shadow: 0 0 5px var(--primary-text), 0 0 10px var(--primary-text); }
+            to { text-shadow: 0 0 15px var(--primary-text), 0 0 25px var(--primary-text); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease-out;
+            animation: float-card 6s ease-in-out infinite;
+        }
+
+        @keyframes float-card {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+
+        .card:hover {
+            transform: scale(1.03) translateY(-15px);
+            box-shadow: 0 16px 64px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .video-container {
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        #unmute-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #unmute-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .main-button {
+            background: linear-gradient(90deg, var(--button-purple), var(--button-red));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--button-purple), 0 0 20px var(--button-red);
+            z-index: 1;
+        }
+        
+        .main-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px var(--button-purple), 0 0 40px var(--button-red);
+        }
+
+        .star-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: var(--star-color);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            animation: pop-star 1s forwards ease-out;
+        }
+
+        @keyframes pop-star {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), var(--dy)) scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="star-canvas"></canvas>
+
+    <div class="container">
+        <h1>Day 8 theme Galaxies Magic✨<br>Happy birthday Priyankaaa💫</h1>
+        <div class="card">
+            <div class="video-container">
+                <video id="birthday-video" src="moon intro.mp4" autoplay loop muted playsinline></video>
+                <div id="unmute-overlay">
+                    Click to Play with Sound
+                </div>
+            </div>
+            <audio id="birthday-audio" src="https://assets.mixkit.co/sfx/preview/mixkit-happy-and-uplifting-music-613.mp3" loop></audio>
+            <button id="next-button" class="main-button">Enter into Your Universe</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const video = document.getElementById("birthday-video");
+            const audio = document.getElementById("birthday-audio");
+            const unmuteOverlay = document.getElementById("unmute-overlay");
+            const nextButton = document.getElementById("next-button");
+
+            // Handle unmuting and playing the audio on user interaction
+            unmuteOverlay.addEventListener("click", () => {
+                video.muted = false;
+                audio.play().catch(error => {
+                    console.error("Audio playback failed:", error);
+                });
+                unmuteOverlay.classList.add("hidden");
+            });
+
+            // Function to create and animate the star pop effect
+            function createStars(button) {
+                const numStars = 70; // Increased number of stars
+                for (let i = 0; i < numStars; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star-particle';
+                    
+                    // Position the star randomly around the button's center
+                    const angle = Math.random() * 2 * Math.PI;
+                    const distance = Math.random() * 50 + 20; // 20px to 70px outward
+                    const dx = distance * Math.cos(angle);
+                    const dy = distance * Math.sin(angle);
+
+                    star.style.setProperty('--dx', `${dx}px`);
+                    star.style.setProperty('--dy', `${dy}px`);
+                    
+                    button.appendChild(star);
+                    
+                    // Remove the star after the animation is complete
+                    star.addEventListener('animationend', () => {
+                        star.remove();
+                    });
+                }
+            }
+
+            // Handle button click to trigger stars and then redirect
+            nextButton.addEventListener("click", () => {
+                createStars(nextButton); // Create stars on the button click
+
+                // Delay the redirect to allow the animation to play
+                setTimeout(() => {
+                    window.location.href = "./galaxy magic.html"; 
+                }, 800); // Redirect after 800ms
+            });
+
+            // Prevent video from playing without sound if user doesn't interact
+            if (video.autoplay && video.muted) {
+                video.play().catch(error => {
+                    console.error("Video autoplay failed:", error);
+                });
+            }
+
+            // New canvas-based star background
+            const canvas = document.getElementById('star-canvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+            const numberOfStars = 1000;
+
+            function Star() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.opacity = Math.random();
+                this.speed = Math.random() * 0.2 + 0.05; // Slower speed for a grander feel
+                // *** DECREASED TWINKLE SPEED HERE ***
+                this.twinkleSpeed = Math.random() * 0.01 + 0.005; // Slower twinkling speed
+                this.twinkleDirection = Math.random() > 0.5 ? 1 : -1; // Direction of twinkle (fade in/out)
+            }
+
+            function init() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                stars = [];
+                for (let i = 0; i < numberOfStars; i++) {
+                    stars.push(new Star());
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'white';
+
+                for (let i = 0; i < stars.length; i++) {
+                    const star = stars[i];
+
+                    // Twinkling effect: change opacity over time
+                    star.opacity += star.twinkleSpeed * star.twinkleDirection;
+                    if (star.opacity > 1 || star.opacity < 0) {
+                        star.twinkleDirection *= -1; // Reverse twinkle direction
+                        star.opacity = Math.max(0, Math.min(1, star.opacity)); // Clamp opacity between 0 and 1
+                    }
+
+
+                    // Draw the star
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                    ctx.fill();
+
+                    // Animate the star's movement
+                    star.x += star.speed;
+
+                    // Reset the star when it moves off screen
+                    if (star.x > canvas.width) {
+                        star.x = 0;
+                        star.y = Math.random() * canvas.height;
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', init);
+            init();
+            animate();
+        });
+    </script>
+</body>
+</html>
